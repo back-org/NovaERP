@@ -11,8 +11,8 @@ spring:
   datasource:
     # 👉 En local avec Docker Compose : host = mysql (nom du service docker-compose)
     url: jdbc:mysql://mysql:3306/novaerp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: novaerp
-    password: novaerp
+    username: root
+    password: Ma$terkey1
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # ==========================
@@ -42,8 +42,8 @@ spring:
   # ==========================
   jackson:
     default-property-inclusion: non_null # to exclude null in json serialization
-    serialization:
-      write-dates-as-timestamps: false
+    # serialization:
+      # write-dates-as-timestamps: true
 
 # ==========================
 #   Sécurité JWT
@@ -87,3 +87,5 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.novaerp: DEBUG
+  file:
+    name: ./logs/novaerp.log
