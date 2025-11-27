@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import lombok.*;
 
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class LigneFactureResponse {

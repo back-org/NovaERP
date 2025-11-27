@@ -8,6 +8,7 @@ import com.novaerp.domain.entity.factures.StatutFacture;
 import lombok.*;
 
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class FactureResponse {

@@ -1,3 +1,92 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: novaerp
+
+  # ==========================
+  #   Datasource MySQL
+  # ==========================
+  datasource:
+    # 👉 En local avec Docker Compose : host = mysql (nom du service docker-compose)
+    url: jdbc:mysql://localhost:3306/novaerp
+    username: root
+    password: Ma$terkey1
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # ==========================
+  #   JPA / Hibernate
+  # ==========================
+  jpa:
+    hibernate:
+      # En dev : update ; en prod : validate ou none
+      ddl-auto: update
+    show-sql: true
+    generate-ddl: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  # ==========================
+  #   Flyway (migrations SQL)
+  # ==========================
+  flyway:
+    enabled: true
+    # Dossier par défaut : classpath:db/migration
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  # ==========================
+  #   Jackson (JSON)
+  # ==========================
+  jackson:
+    default-property-inclusion: non_null # to exclude null in json serialization
+    # serialization:
+      # write-dates-as-timestamps: true
+
+# ==========================
+#   Sécurité JWT
+# ==========================
+security:
+  jwt:
+    # ⚠️ à changer en prod par une vraie clé longue & random
+    secret: "KHE6bcAIpAb4eIuLGReqKcTxSk9HKadJNkLFagnjy3B"
+    expiration-ms: 3600000   # 1 heure
+
+# ==========================
+#   Swagger / Springdoc
+# ==========================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+
+# ==========================
+#   Actuator
+# ==========================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# ==========================
+#   Logging
+# ==========================
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.novaerp: DEBUG
+  file:
+    name: ./logs/novaerp.log

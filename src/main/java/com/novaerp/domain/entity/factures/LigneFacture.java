@@ -7,7 +7,6 @@ import com.novaerp.domain.entity.produit.Produit;
 import java.math.BigDecimal;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

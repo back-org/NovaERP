@@ -10,7 +10,7 @@ spring:
   # ==========================
   datasource:
     # 👉 En local avec Docker Compose : host = mysql (nom du service docker-compose)
-    url: jdbc:mysql://mysql:3306/novaerp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/novaerp
     username: root
     password: Ma$terkey1
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -23,6 +23,7 @@ spring:
       # En dev : update ; en prod : validate ou none
       ddl-auto: update
     show-sql: true
+    generate-ddl: true
     properties:
       hibernate:
         format_sql: true
