@@ -26,23 +26,5 @@ public class PaiementCreateRequest {
 
     private String reference;
 
-    /*
-    public LocalDate getDatePaiement() {
-        return datePaiement;
-    }
-
-    public BigDecimal getMontant() {
-        return montant;
-    }
-
-    public ModePaiement getMode() {
-        return mode;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-    */
-
     // getters / setters
 }

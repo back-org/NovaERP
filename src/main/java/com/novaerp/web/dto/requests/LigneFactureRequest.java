@@ -18,9 +18,5 @@ public class LigneFactureRequest {
     @Min(1)
     private BigDecimal quantite;
 
-   /* public Long getProduitId() {
-        return produitId;
-    } */
-
     // getters / setters
 }

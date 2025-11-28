@@ -46,7 +46,7 @@ public class FacturationServiceImpl implements FacturationService {
     //   Création de facture
     // ==========================
 
-
+    @Override
     public Facture creerFacture(FactureCreateRequest request) {
         Client client = clientRepository.findById(request.getClientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Client introuvable"));

@@ -24,10 +24,5 @@ public class FactureCreateRequest {
     @NotEmpty
     private List<LigneFactureRequest> lignes;
 
-    /*
-    public LigneFactureRequest[] getLignes() {
-        return (LigneFactureRequest[]) lignes.toArray();
-    } */
-
     // getters / setters
 }
