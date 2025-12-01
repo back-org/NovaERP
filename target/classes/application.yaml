@@ -27,7 +27,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
 
   # ==========================
   #   Flyway (migrations SQL)
@@ -90,3 +90,5 @@ logging:
     com.novaerp: DEBUG
   file:
     name: ./logs/novaerp.log
+
+

@@ -20,8 +20,8 @@ public class Produit {
     @Column(nullable = false)
     private String nom;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)    
+    @Column(name = "type_produit", length = 20, nullable = false)
     private TypeProduit type;
 
     @Column(nullable = false, precision = 15, scale = 2)

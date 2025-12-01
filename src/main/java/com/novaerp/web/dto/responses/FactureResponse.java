@@ -7,6 +7,8 @@ import java.util.List;
 import com.novaerp.domain.entity.factures.StatutFacture;
 import lombok.*;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Builder
 @Data
 @NoArgsConstructor
