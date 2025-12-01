@@ -27,9 +27,14 @@ public class Paiement {
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal montant;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+	
+	@Schema(
+		description = "Mode de paiement", 
+		example = "VIREMENT", 
+		allowableValues = {"ESPECES","VIREMENT","CHEQUE","MOBILE_MONEY"}
+	)
+    @Enumerated(EnumType.STRING)    
+    @Column(name = "mode", length = 50, nullable = false)
     private ModePaiement mode;
 
     private String reference; // ex: référence virement

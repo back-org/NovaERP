@@ -13,6 +13,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
+@Tag(name = "Authentification", description = "Endpoints d'authentification et de génération de JWT")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -31,7 +36,14 @@ public class AuthController {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
+	
+	@Operation(
+        summary = "Authentifier un utilisateur",
+        description = "Authentifie un utilisateur avec son nom d'utilisateur et mot de passe, "
+                    + "et retourne un token JWT à utiliser dans les autres appels protégés."
+    )
+    @ApiResponse(responseCode = "200", description = "Authentification réussie, token JWT retourné")
+    @ApiResponse(responseCode = "401", description = "Identifiants invalides")
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         Authentication auth = new UsernamePasswordAuthenticationToken(

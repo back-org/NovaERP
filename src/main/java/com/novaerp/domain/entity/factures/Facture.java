@@ -34,8 +34,13 @@ public class Facture {
     @Column(nullable = false)
     private LocalDate dateEcheance;
 
+	@Schema(
+		description = "Statut de la facture",
+		example = "ENVOYEE",
+		allowableValues = {"BROUILLON","ENVOYEE","PAYEE","EN_RETARD"}
+	)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "statut", length = 30, nullable = false)
     private StatutFacture statut = StatutFacture.BROUILLON;
 
     @OneToMany(mappedBy = "facture", cascade = CascadeType.ALL, orphanRemoval = true)

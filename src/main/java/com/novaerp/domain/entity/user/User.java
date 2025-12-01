@@ -3,6 +3,8 @@ package com.novaerp.domain.entity.user;
 import jakarta.persistence.*;
 import lombok.*;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,6 +24,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+	@Schema(description = "Rôle de l'utilisateur", example = "ROLE_ADMIN")
     private Role role;
 
     private Boolean actif = true;

@@ -10,12 +10,19 @@ import lombok.*;
 public class LigneFactureResponse {
 
     private Long id;
+	
     private Long produitId;
+	
     private String produitNom;
+	
     private BigDecimal quantite;
+	
     private BigDecimal prixUnitaireHt;
+	
     private BigDecimal tauxTva;
+	
     private BigDecimal totalLigneHt;
+	
     private BigDecimal totalLigneTtc;
 
     // getters / setters

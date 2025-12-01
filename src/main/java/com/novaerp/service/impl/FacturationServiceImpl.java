@@ -182,7 +182,7 @@ public class FacturationServiceImpl implements FacturationService {
     //   Paiements
     // ==========================
 
-
+    @Override
     public Facture enregistrerPaiement(Long factureId, PaiementCreateRequest request) {
         Facture facture = getFactureById(factureId);
 
