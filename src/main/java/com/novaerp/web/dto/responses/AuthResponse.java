@@ -13,7 +13,6 @@ public class AuthResponse {
     private String username;
 	
     private String role;
-
    
     // getters / setters
 }

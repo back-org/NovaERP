@@ -39,5 +39,9 @@ public class User {
 	@Column(nullable = false)
     private Instant createdAt = Instant.now();
 
+    public boolean isActif() {
+        return actif;
+    }
+
     // getters / setters
 }

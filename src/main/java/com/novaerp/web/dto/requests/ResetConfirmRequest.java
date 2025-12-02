@@ -1,4 +1,4 @@
-package com.novaerp.web.dto.auth;
+package com.novaerp.web.dto.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

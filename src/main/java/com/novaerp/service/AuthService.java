@@ -1,15 +1,16 @@
 package com.novaerp.service;
 
-import com.novaerp.domain.entity.user.BlacklistedToken;
 import com.novaerp.domain.entity.user.PasswordResetToken;
+import com.novaerp.domain.entity.user.Role;
 import com.novaerp.domain.entity.user.User;
-import com.novaerp.domain.repository.BlacklistedTokenRepository;
 import com.novaerp.domain.repository.PasswordResetTokenRepository;
 import com.novaerp.domain.repository.UserRepository;
 import com.novaerp.security.JwtService;
 
+
 import com.novaerp.web.dto.requests.LoginRequest;
 import com.novaerp.web.dto.requests.RegisterRequest;
+import com.novaerp.web.dto.requests.ResetConfirmRequest;
 import com.novaerp.web.dto.requests.ResetRequest;
 import com.novaerp.web.dto.responses.AuthResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,20 +26,23 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository resetTokenRepository;
-    private final BlacklistedTokenRepository blacklistedTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RedisTokenService redisTokenService;
+    private final EmailService emailService;
 
     public AuthService(UserRepository userRepository,
                        PasswordResetTokenRepository resetTokenRepository,
-                       BlacklistedTokenRepository blacklistedTokenRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtService jwtService) {
+                       JwtService jwtService,
+                       RedisTokenService redisTokenService,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.resetTokenRepository = resetTokenRepository;
-        this.blacklistedTokenRepository = blacklistedTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.redisTokenService = redisTokenService;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -53,15 +57,15 @@ public class AuthService {
         u.setUsername(req.getUsername());
         u.setEmail(req.getEmail());
         u.setPassword(passwordEncoder.encode(req.getPassword()));
-        u.setRole("ROLE_USER");
+        u.setRole(Role.valueOf("ROLE_USER"));
         u.setActif(true);
         userRepository.save(u);
 
-        String token = jwtService.generateToken(u.getUsername(), u.getRole());
+        String token = jwtService.generateToken(u.getUsername(), String.valueOf(u.getRole()));
         AuthResponse resp = new AuthResponse();
         resp.setToken(token);
         resp.setUsername(u.getUsername());
-        resp.setRole(u.getRole());
+        resp.setRole(String.valueOf(u.getRole()));
         return resp;
     }
 
@@ -80,47 +84,58 @@ public class AuthService {
         if (!u.isActif()) {
             throw new IllegalStateException("User is inactive");
         }
-        String token = jwtService.generateToken(u.getUsername(), u.getRole());
+        String token =
+                jwtService.generateToken(u.getUsername(),
+                String.valueOf(u.getRole()));
         AuthResponse resp = new AuthResponse();
         resp.setToken(token);
         resp.setUsername(u.getUsername());
-        resp.setRole(u.getRole());
+        resp.setRole(String.valueOf(u.getRole()));
         return resp;
     }
 
     @Transactional
     public void logout(String token) {
-        // parse expiration and store token in blacklist until expiry
-        java.util.Date expiry = jwtService.getExpiration(token);
-        BlacklistedToken bt = new BlacklistedToken();
-        bt.setToken(token);
-        bt.setExpiryDate(expiry.toInstant());
-        blacklistedTokenRepository.save(bt);
+        // compute ttl = expiry - now
+        java.util.Date exp = jwtService.getExpiration(token);
+        long ttlMillis = exp.toInstant().toEpochMilli() - Instant.now().toEpochMilli();
+        if (ttlMillis > 0) {
+            redisTokenService.blacklistToken(token, ttlMillis);
+        }
     }
 
     @Transactional
-    public String requestPasswordReset(ResetRequest req) {
+    public void requestPasswordResetAndSendEmail(ResetRequest req) {
         Optional<User> opt = userRepository.findByEmail(req.getEmail());
+        // Always return same response to avoid user enumeration
         if (opt.isEmpty()) {
-            // don't reveal email existence -> return generic message
-            return "If the email exists, a reset link has been generated";
+            return;
         }
         User user = opt.get();
-        // Remove previous tokens
         resetTokenRepository.deleteByUser(user);
 
         PasswordResetToken token = new PasswordResetToken();
         token.setToken(UUID.randomUUID().toString());
         token.setUser(user);
-        token.setExpiryDate(Instant.now().plusSeconds(60 * 60)); // 1h expiry
+        token.setExpiryDate(Instant.now().plusSeconds(60 * 60)); // 1h
         resetTokenRepository.save(token);
 
-        // In prod : send email with token link. Here return token for demo.
-        return token.getToken();
+        // Build reset link (adjust host)
+        String resetLink = String.format("https://your-domain.com/reset-password?token=%s", token.getToken());
+
+        // Send email
+        String subject = "NovaERP - Reset your password";
+        String text = "Hello " + user.getUsername() + ",\n\n"
+                + "We received a request to reset your password. Click the link below to reset it:\n\n"
+                + resetLink + "\n\n"
+                + "If you did not request a password reset, ignore this message.\n\n"
+                + "Regards,\nNovaERP Team";
+
+        emailService.sendSimpleMessage(user.getEmail(), subject, text);
     }
 
     @Transactional
-    public void confirmPasswordReset(com.novaerp.web.dto.auth.ResetConfirmRequest req) {
+    public void confirmPasswordReset(ResetConfirmRequest req) {
         PasswordResetToken tokenEntity = resetTokenRepository.findByToken(req.getToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid reset token"));
         if (tokenEntity.getExpiryDate().isBefore(Instant.now())) {
@@ -129,9 +144,6 @@ public class AuthService {
         User u = tokenEntity.getUser();
         u.setPassword(passwordEncoder.encode(req.getNewPassword()));
         userRepository.save(u);
-        // cleanup token
         resetTokenRepository.delete(tokenEntity);
-        // Optionally blacklist all existing JWTs? You might want to invalidate old tokens:
-        // (not implemented here)
     }
 }

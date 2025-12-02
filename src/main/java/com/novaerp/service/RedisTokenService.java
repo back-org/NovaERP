@@ -1,4 +1,4 @@
-package com.novaerp.security;
+package com.novaerp.service;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
