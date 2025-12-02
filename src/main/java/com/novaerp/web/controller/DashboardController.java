@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-@Tag(name = "Dashboard", description = "Endpoints de statistiques et d'analytics")
+@Tag(name = "Dashboard", description = "Statistiques et indicateurs financiers (CA, impayés, top clients)")
 @RestController
 @RequestMapping("/api/dashboard")
 @SecurityRequirement(name = "bearerAuth")
@@ -28,13 +28,19 @@ public class DashboardController {
      * Exemple : GET /api/dashboard?year=2025
      */
 	@Operation(
-        summary = "Récupérer les statistiques globales",
-        description = "Retourne le chiffre d'affaires mensuel, le nombre de factures en retard, "
-                    + "le montant total impayé et le top 5 des clients."
+        summary = "Récupérer les données du tableau de bord",
+        description = "Retourne le chiffre d'affaires mensuel (liste mois/total), le nombre de factures en retard, le montant total impayé, et le top clients.",
+        parameters = {
+            @Parameter(name = "year", description = "Année pour laquelle calculer les stats (par défaut : année en cours)", example = "2025")
+        },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Données du dashboard retournées",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = DashboardResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié (JWT requis)")
+        }
     )
-    @ApiResponse(responseCode = "200", description = "Données du dashboard retournées")
     @GetMapping
-    // @PreAuthorize("hasAnyRole('ADMIN','MANAGER')") // si tu veux
+    // @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<DashboardResponse> getDashboard(
             @Parameter(description = "Année ciblée pour les statistiques", example = "2025")
             @RequestParam(required = false) Integer year)  {

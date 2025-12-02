@@ -28,9 +28,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 //@PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-@Tag(name = "Factures", description = "Endpoints de gestion des factures")
+@Tag(name = "Factures", description = "Gestion des factures : création, consultation, envoi, paiements.")
 @RestController
 @RequestMapping("/api/factures")
+@SecurityRequirement(name = "bearerAuth")
 public class FactureController {
 
     private final FacturationService facturationService;
@@ -43,11 +44,33 @@ public class FactureController {
      * Création d'une facture avec ses lignes
      */
     @Operation(
-            summary = "Créer une facture",
-            description = "Créer une nouvelle facture pour un client donné avec ses lignes."
+        summary = "Créer une facture",
+        description = "Crée une facture pour un client avec une ou plusieurs lignes. " +
+                      "Le backend calcule HT, TVA, TTC, numéro et initialise le statut.",
+        requestBody = @RequestBody(
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = FactureCreateRequest.class),
+                examples = @ExampleObject(value = """
+                {
+                  "clientId": 1,
+                  "dateEcheance": "2025-12-31",
+                  "lignes": [
+                    { "produitId": 10, "quantite": 2 },
+                    { "produitId": 11, "quantite": 1 }
+                  ]
+                }
+                """)
+            )
+        ),
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Facture créée",
+                content = @Content(schema = @Schema(implementation = FactureResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Données invalides (ex: produit non existant)"),
+            @ApiResponse(responseCode = "401", description = "Non authentifié")
+        }
     )
-    @ApiResponse(responseCode = "201", description = "Facture créée avec succès")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
     @PostMapping
     public ResponseEntity<FactureResponse> creerFacture(
             @Valid @RequestBody FactureCreateRequest request) {
@@ -62,24 +85,23 @@ public class FactureController {
                 .status(HttpStatus.CREATED)
                 .body(toFactureResponse(facture));
     }
-
-    // =========================================================
+	
+	// =========================================================
     //  DÉTAIL D'UNE FACTURE
     // =========================================================
     @Operation(
         summary = "Récupérer une facture par ID",
-        description = "Retourne le détail complet d'une facture : client, lignes, montants, statut, paiements."
+        description = "Retourne le détail complet (client, lignes, paiements, montants, statut).",
+        parameters = {
+            @Parameter(name = "id", description = "Identifiant de la facture", required = true, example = "123")
+        },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Facture trouvée",
+                content = @Content(schema = @Schema(implementation = FactureResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Facture introuvable"),
+            @ApiResponse(responseCode = "401", description = "Non authentifié")
+        }
     )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Facture trouvée",
-        content = @Content(schema = @Schema(implementation = FactureResponse.class))
-    )
-    @ApiResponse(
-        responseCode = "404",
-        description = "Facture introuvable"
-    )
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','USER')")
     @GetMapping("/{id}")
     public ResponseEntity<FactureResponse> getFacture(@Parameter(description = "Identifiant de la facture", example = "123") @PathVariable Long id) {
         Facture facture = facturationService.getFactureById(id);
@@ -91,24 +113,17 @@ public class FactureController {
     // =========================================================
     @Operation(
         summary = "Lister les factures",
-        description = "Retourne la liste des factures enregistrées."
+        description = "Retourne la liste des factures. Possibilité d'ajouter filtres (à étendre).",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Liste retournée",
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = FactureResponse.class)))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié")
+        }
     )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Liste des factures retournée",
-        content = @Content(array = @ArraySchema(schema = @Schema(implementation = FactureResponse.class)))
-    )    
     @GetMapping
-    public ResponseEntity<List<FactureResponse>> listFactures(
-            @RequestParam(required = false) Long clientId,
-            @RequestParam(required = false) String statut // ex: ENVOYEE, PAYEE...
-    ) {
-        List<Facture> factures = facturationService.rechercherFactures(clientId, statut);
-
-        List<FactureResponse> responses = factures.stream()
-                .map(this::toFactureResponse)
-                .collect(toList());
-
+    public ResponseEntity<List<FactureResponse>> getFactures() {
+        var factures = facturationService.getAllFactures();
+        var responses = factures.stream().map(this::toFactureResponse).toList();
         return ResponseEntity.ok(responses);
     }
 
@@ -138,14 +153,28 @@ public class FactureController {
     // =========================================================
     //   ENREGISTRER UN PAIEMENT SUR UNE FACTURE
     // =========================================================
-    @Operation(
-            summary = "Enregistrer un paiement sur une facture",
-            description = "Ajoute un paiement (partiel ou complet) sur une facture existante, "
-                    + "met à jour les montants (payé / restant) et le statut (PAYEE / EN_RETARD / ENVOYEE...)."
+   @Operation(
+        summary = "Enregistrer un paiement sur une facture",
+        description = "Ajoute un paiement (partiel ou total) sur la facture, met à jour `montantPaye`, `montantRestant` et le `statut` (PAYEE ou EN_RETARD).",
+        parameters = {
+            @Parameter(name = "id", description = "Identifiant de la facture à régler", required = true, example = "123")
+        },
+        requestBody = @RequestBody(
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = PaiementCreateRequest.class),
+                examples = @ExampleObject(value = "{\"datePaiement\":\"2025-11-27\",\"montant\":300000,\"mode\":\"VIREMENT\",\"reference\":\"VIR-2025-001\"}")
+            )
+        ),
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Paiement enregistré, facture mise à jour",
+                content = @Content(schema = @Schema(implementation = FactureResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Paiement invalide (montant > restant, etc.)"),
+            @ApiResponse(responseCode = "404", description = "Facture introuvable"),
+            @ApiResponse(responseCode = "401", description = "Non authentifié")
+        }
     )
-    @ApiResponse(responseCode = "200", description = "Paiement enregistré, facture mise à jour")
-    @ApiResponse(responseCode = "400", description = "Requête invalide ou paiement impossible")
-    @ApiResponse(responseCode = "404", description = "Facture introuvable")
     @PostMapping("/{id}/paiements")
     public ResponseEntity<FactureResponse> enregistrerPaiement(
             @Parameter(description = "Identifiant de la facture à régler", example = "123")
