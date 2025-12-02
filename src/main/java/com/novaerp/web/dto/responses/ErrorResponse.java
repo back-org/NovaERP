@@ -2,6 +2,8 @@ package com.novaerp.web.dto.responses;
 
 import lombok.*;
 
+import java.time.Instant;
+
 @Builder
 @Data
 @NoArgsConstructor

@@ -6,7 +6,13 @@ import com.novaerp.web.dto.requests.RegisterRequest;
 import com.novaerp.web.dto.requests.ResetConfirmRequest;
 import com.novaerp.web.dto.requests.ResetRequest;
 import com.novaerp.web.dto.responses.AuthResponse;
+
 import io.swagger.v3.oas.annotations.Operation;
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -27,7 +33,7 @@ public class AuthController {
         summary = "Inscrire un nouvel utilisateur",
         description = "Crée un nouvel utilisateur. Le mot de passe est hashé (BCrypt). " +
                       "En environnement démo, la réponse contient un JWT ; en production on préférera renvoyer 201 et demander la vérification email.",
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
             content = @Content(
                 mediaType = "application/json",
@@ -54,7 +60,7 @@ public class AuthController {
     @Operation(
         summary = "Connexion (login) - obtenir un JWT",
         description = "S'authentifie via `usernameOrEmail` + `password`. Retourne un JWT signé et les informations minimales de l'utilisateur.",
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
             content = @Content(
                 mediaType = "application/json",
@@ -97,7 +103,7 @@ public class AuthController {
         summary = "Demander une réinitialisation de mot de passe",
         description = "Crée un token de reset (valide 1h) et envoie un email contenant le lien de réinitialisation. " +
                       "Pour éviter l'énumération d'emails, la réponse est neutre (toujours 200).",
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
             content = @Content(
                 mediaType = "application/json",
@@ -118,7 +124,7 @@ public class AuthController {
     @Operation(
         summary = "Confirmer la réinitialisation du mot de passe",
         description = "Valide le token reçu par email et met à jour le mot de passe de l'utilisateur. Le token devient inutilisable après usage.",
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
             content = @Content(
                 mediaType = "application/json",

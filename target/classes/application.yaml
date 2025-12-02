@@ -87,14 +87,47 @@ springdoc:
 # ==========================
 #   Actuator
 # ==========================
+# --- Management / Actuator ---
 management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  server:
+    # Optionnel : utiliser un port séparé pour l'admin (ex : 8081).
+    # Commenter ou supprimer si tu veux que Actuator soit servi sur le même port que l'app (8080)
+    port: 8081
+
   endpoints:
     web:
+      base-path: /actuator
+      # Endpoints exposés via HTTP (ajoute/retire selon besoin)
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus,env,loggers,threaddump,heapdump,httptrace,beans
+
   endpoint:
     health:
+      # show-details: "always" | "when_authorized" | "never"
       show-details: when_authorized
+    httptrace:
+      enabled: true
+
+  # --- Prometheus (Micrometer) ---
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Info properties (affichées par /actuator/info)
+info:
+  app:
+    name: novaerp
+    version: 1.0.0
+    description: "NovaERP backend API"
+
+# Actuator health readiness / liveness probe configuration (kubernetes style)
+
 
 # ==========================
 #   Logging
@@ -105,6 +138,7 @@ logging:
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.boot.actuate: INFO
     com.novaerp: DEBUG
   file:
     name: ./logs/novaerp.log

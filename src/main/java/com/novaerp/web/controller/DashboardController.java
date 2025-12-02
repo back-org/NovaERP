@@ -2,7 +2,10 @@ package com.novaerp.web.controller;
 
 import com.novaerp.service.DashboardService;
 import com.novaerp.web.dto.responses.DashboardResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +43,7 @@ public class DashboardController {
         }
     )
     @GetMapping
-    // @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<DashboardResponse> getDashboard(
             @Parameter(description = "Année ciblée pour les statistiques", example = "2025")
             @RequestParam(required = false) Integer year)  {

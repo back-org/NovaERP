@@ -11,7 +11,9 @@ import com.novaerp.web.dto.responses.FactureResponse;
 import com.novaerp.web.dto.responses.LigneFactureResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -27,7 +29,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-//@PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+@PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
 @Tag(name = "Factures", description = "Gestion des factures : création, consultation, envoi, paiements.")
 @RestController
 @RequestMapping("/api/factures")
@@ -47,7 +49,7 @@ public class FactureController {
         summary = "Créer une facture",
         description = "Crée une facture pour un client avec une ou plusieurs lignes. " +
                       "Le backend calcule HT, TVA, TTC, numéro et initialise le statut.",
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
             content = @Content(
                 mediaType = "application/json",
@@ -159,7 +161,7 @@ public class FactureController {
         parameters = {
             @Parameter(name = "id", description = "Identifiant de la facture à régler", required = true, example = "123")
         },
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
             content = @Content(
                 mediaType = "application/json",

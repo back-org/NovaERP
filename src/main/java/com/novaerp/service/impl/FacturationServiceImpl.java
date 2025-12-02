@@ -42,10 +42,11 @@ public class FacturationServiceImpl implements FacturationService {
         this.paiementRepository = paiementRepository;
     }
 
-    // ==========================
-    //   Création de facture
-    // ==========================
-
+    // -------------------------------------------------------
+    // 1) CREATION DE FACTURE
+    // -------------------------------------------------------
+    
+	@Transactional
     @Override
     public Facture creerFacture(FactureCreateRequest request) {
         Client client = clientRepository.findById(request.getClientId())
@@ -83,6 +84,17 @@ public class FacturationServiceImpl implements FacturationService {
 
         return factureRepository.save(facture);
     }
+	// -------------------------------------------------------
+    // 2) LISTE DE TOUTES LES FACTURES
+    // -------------------------------------------------------
+    @Override
+	public List<Facture> getAllFactures() {
+        return factureRepository.findAll();
+    }
+
+    // -------------------------------------------------------
+    // 3) RECUPERER UNE FACTURE PAR ID
+    // -------------------------------------------------------
 
     private String genererNumeroFacture() {
         long count = factureRepository.count() + 1;

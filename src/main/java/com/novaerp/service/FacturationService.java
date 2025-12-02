@@ -23,4 +23,7 @@ public interface FacturationService {
     Facture creerFacture(FactureCreateRequest request);
 
     Facture enregistrerPaiement(Long factureId, PaiementCreateRequest request);
+	
+	List<Facture> getAllFactures();
+
 }
