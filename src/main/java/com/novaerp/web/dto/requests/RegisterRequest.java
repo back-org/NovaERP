@@ -1,6 +1,7 @@
 package com.novaerp.web.dto.requests;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
 
 import lombok.*;
 
@@ -8,13 +9,18 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
-
+public class RegisterRequest {
+    
+	@NotBlank
+    private String username;
+	
+    @Email
     @NotBlank
-    private String usernameOrEmail;
-
+    private String email;
+	
     @NotBlank
     private String password;
 
     // getters / setters
+   
 }

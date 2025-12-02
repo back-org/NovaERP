@@ -2,7 +2,7 @@ package com.novaerp.security;
 
 import com.novaerp.domain.entity.user.User;
 import com.novaerp.domain.repository.UserRepository;
-// import org.jspecify.annotations.NullMarked;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;

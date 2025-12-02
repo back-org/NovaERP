@@ -4,7 +4,9 @@ import com.novaerp.domain.entity.user.User;
 import com.novaerp.domain.repository.UserRepository;
 import com.novaerp.security.JwtService;
 import com.novaerp.web.dto.requests.LoginRequest;
+import com.novaerp.web.dto.requests.RegisterRequest;
 import com.novaerp.web.dto.responses.AuthResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -70,4 +72,43 @@ public class AuthController {
     }
 
     // (Optionnel) endpoint register si tu veux créer des users via API
+	 @Operation(summary = "Register a new user")
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest req) {
+        AuthResponse resp = authService.register(req);
+        return ResponseEntity.ok(resp);
+    }
+
+    @Operation(summary = "Login (username/email + password)")
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
+        AuthResponse resp = authService.login(req);
+        return ResponseEntity.ok(resp);
+    }
+
+    @Operation(summary = "Logout (blacklist current JWT)")
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            authService.logout(token);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Request password reset (returns token for demo)")
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<String> requestReset(@Valid @RequestBody ResetRequest req) {
+        String token = authService.requestPasswordReset(req);
+        // In prod, you'd return 200 OK and send email with the token so we don't leak it in response.
+        return ResponseEntity.ok(token);
+    }
+
+    @Operation(summary = "Confirm password reset (token + newPassword)")
+    @PostMapping("/password/reset-confirm")
+    public ResponseEntity<Void> confirmReset(@Valid @RequestBody ResetConfirmRequest req) {
+        authService.confirmPasswordReset(req);
+        return ResponseEntity.noContent().build();
+    }
 }

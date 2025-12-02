@@ -1,0 +1,141 @@
+/* ---------------------------
+   NovaERP - Swagger UI Custom CSS
+   File: src/main/resources/static/swagger-ui/custom.css
+   --------------------------- */
+
+/* Variables / couleurs */
+:root {
+  --nova-primary: #0b63d6;     /* bleu principal */
+  --nova-accent: #0f9cf0;
+  --nova-bg: #f6f9ff;
+  --nova-card: #ffffff;
+  --nova-muted: #6b7280;
+  --nova-border: rgba(11,99,214,0.12);
+  --nova-radius: 12px;
+}
+
+/* Body background */
+body.swagger-ui {
+  background: linear-gradient(180deg, var(--nova-bg) 0%, #ffffff 100%);
+  font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Header / banner */
+.swagger-ui .topbar {
+  background: linear-gradient(90deg, rgba(11,99,214,0.95), rgba(15,156,240,0.95));
+  box-shadow: 0 6px 20px rgba(11,99,214,0.12);
+  padding: 10px 18px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+}
+
+/* Inject logo left of title */
+.swagger-ui .topbar .topbar-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.swagger-ui .topbar .topbar-wrapper::before {
+  content: "";
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* Remplace /swagger-ui/logo.png par le chemin de ton logo */
+  background-image: url('/swagger-ui/logo.png');
+  box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+}
+
+/* Title style */
+.swagger-ui .topbar .topbar-wrapper .download-url-wrapper,
+.swagger-ui .topbar .topbar-wrapper .title {
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Tweak authorize button */
+.swagger-ui .auth-wrapper .authorize {
+  background: #fff !important;
+  color: var(--nova-primary) !important;
+  border-radius: 8px;
+  padding: 6px 10px;
+  box-shadow: none !important;
+}
+
+/* Primary buttons (Try it out, Execute) */
+.opblock .try-out,
+.btn,
+.button,
+.execute-wrapper .btn.execute {
+  background: linear-gradient(90deg, var(--nova-primary), var(--nova-accent)) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 6px 18px rgba(11,99,214,0.12);
+}
+
+/* Card style */
+.info,
+.opblock,
+.scheme-container,
+.responses-wrapper,
+.parameters {
+  background: var(--nova-card) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: var(--nova-radius) !important;
+  box-shadow: 0 6px 20px rgba(16,24,40,0.04);
+}
+
+/* Make code examples nicer */
+.opblock .example,
+.tab-content pre,
+.highlight {
+  background: #0f1724; /* dark code bg */
+  color: #e6eef8;
+  border-radius: 8px;
+  padding: 12px;
+  overflow: auto;
+}
+
+/* Response status codes badges */
+.responses-wrapper .response .response-col_status {
+  background: rgba(11,99,214,0.06) !important;
+  color: var(--nova-primary) !important;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+
+/* Inputs & select */
+.input,
+.select {
+  border-radius: 8px !important;
+  border: 1px solid rgba(15,23,42,0.06) !important;
+  padding: 8px !important;
+}
+
+/* Footer / version area */
+.swagger-ui .info .info-title {
+  color: var(--nova-primary);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .swagger-ui .topbar .topbar-wrapper::before { width: 40px; height: 40px; }
+  .swagger-ui .topbar .topbar-wrapper .title { font-size: 16px; }
+}
+
+/* Small helper: hide "Explore" input if you don't use it */
+.swagger-ui .download-url-input-wrapper { display: none; }
+
+/* Fine tune margins for readability */
+.container {
+  max-width: 1100px !important;
+  margin: 24px auto !important;
+}

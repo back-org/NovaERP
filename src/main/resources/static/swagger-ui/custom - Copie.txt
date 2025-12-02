@@ -1,0 +1,15 @@
+// src/main/resources/static/swagger-ui/custom.js
+// Ce script est exécuté après le chargement de swagger-ui
+window.onload = function () {
+  try {
+    // Exemple : ajouter une classe au bouton authorize pour l'animer légèrement
+    const authBtn = document.querySelector('.auth-wrapper .authorize');
+    if (authBtn) {
+      authBtn.style.transition = 'transform 220ms';
+      authBtn.addEventListener('mouseover', () => authBtn.style.transform = 'translateY(-2px)');
+      authBtn.addEventListener('mouseout',  () => authBtn.style.transform = 'translateY(0)');
+    }
+  } catch (e) {
+    console.warn('custom swagger js error', e);
+  }
+};

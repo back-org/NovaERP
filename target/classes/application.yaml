@@ -4,6 +4,20 @@ server:
 spring:
   application:
     name: novaerp
+ 
+  # ==========================
+  #   Mail
+  # ==========================
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: your-smtp-user
+    password: your-smtp-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
 
   # ==========================
   #   Datasource MySQL
@@ -45,6 +59,10 @@ spring:
     default-property-inclusion: non_null # to exclude null in json serialization
     # serialization:
       # write-dates-as-timestamps: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 # ==========================
 #   Sécurité JWT
